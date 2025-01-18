@@ -36,7 +36,30 @@ def password_find(request):
         print(user_id)
         user = User.objects.get(username = user_id)
         num = random.randrange(100000, 999999)
-        context = {'random':num}
+        print(num)
+        
+        email = EmailMessage(
+            'Pybo 비밀번호 변경 인증번호입니다.', #이메일 제목
+            str(num), #내용
+            to=[user.email], #받는 이메일
+        )
+        email.send()
+        context = {'random':num, 'user':user}
         return render(request, 'common/password_change.html', context)
         
     return render(request, 'common/password_find.html')
+
+def password_change(request, user_id):
+    user = User.objects.get(username = user_id)
+    if request.method == "POST":
+        password1 = request.POST['password1']
+        password2 = request.POST['password2']
+        if password1 == password2:
+            user.set_password(password1)
+            user.save()
+        else :
+            messages.error(request, 'Password not same')
+    return render(request, 'common/login.html')
+        
+        
+            
